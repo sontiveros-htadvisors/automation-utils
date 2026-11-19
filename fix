@@ -14,3 +14,6 @@ sf org display --target-org fsc-qa --verbose --json | ConvertFrom-Json | % { $_.
     sf org login sfdx-url --sfdx-url-file $f --alias $env:SF_CLI_ALIAS
     Remove-Item $f -Force
 This writes the token into the service user's .sfdx and .sf home directories on each run, so it also survives a runner profile change.
+
+
+force://PlatformCLI::5Aep861yqq1bcVIVrfD9yGZhb2opvOqGh3ZgLB3ceaknobj2ykfOrSEUSDO3w4F4yWeynjiApAWX3sE52emNx1.@htsw--qa.sandbox.my.salesforce.com
