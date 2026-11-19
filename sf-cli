@@ -44,3 +44,7 @@ Nothing needs to change in GitHub settings or in the workflow for this error. Th
    sf org list
 
 After completing these steps, rerun the workflow and verify that the sf command is recognized and executes successfully.
+
+
+sf org login web --alias fsc-qa --instance-url https://htsw--qa.sandbox.my.salesforce.com
+sf org list auth
