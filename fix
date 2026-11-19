@@ -1,12 +1,16 @@
+Fix (most reliable): auth from a secret in the workflow
 
-Fix on the runner machine:
-
-1. Install the CLI, as an admin:
-npm i -g @salesforce/cli
-Or use the MSI installer from https://developer.salesforce.com/tools/salesforcecli.
-2. Check the PATH. Make sure the npm global bin directory (usually %APPDATA%\npm, or C:\Program Files\nodejs) is on the system PATH, not just your user PATH. The runner service often runs as a different user, such as NETWORK SERVICE or a dedicated account.
-3. Restart the runner service so it picks up the new PATH. Restarting is required because environment changes aren't seen by a running service.
-Restart-Service "actions.runner.*"
-4. Authenticate once as the same user the runner service runs as. The check at the next step (sf org display) will fail without this.
-sf org login web --alias fsc-qa
-If the login must be done interactively, use runas with the service account, or change the service to run under a user you can log in as. Alternatively, use JWT or sf org login sfdx-url --sfdx-url-file auth.txt --alias fsc-qa with a secret, which works headlessly.
+1. On a machine where fsc-qa works, run:
+sf org display --target-org fsc-qa --verbose --json | ConvertFrom-Json | % { $_.result.sfdxAuthUrl }
+2. Save the force://... value as a repo secret named SF_AUTH_URL. Go to Settings → Secrets and variables → Actions.
+3. Add this step before the test step:
+- name: Salesforce CLI auth
+  shell: powershell
+  env:
+    SF_AUTH_URL: ${{ secrets.SF_AUTH_URL }}
+  run: |
+    $f = Join-Path $env:RUNNER_TEMP 'sfdx.txt'
+    Set-Content -NoNewline -Path $f -Value $env:SF_AUTH_URL
+    sf org login sfdx-url --sfdx-url-file $f --alias $env:SF_CLI_ALIAS
+    Remove-Item $f -Force
+This writes the token into the service user's .sfdx and .sf home directories on each run, so it also survives a runner profile change.
