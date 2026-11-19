@@ -1,0 +1,12 @@
+
+Fix on the runner machine:
+
+1. Install the CLI, as an admin:
+npm i -g @salesforce/cli
+Or use the MSI installer from https://developer.salesforce.com/tools/salesforcecli.
+2. Check the PATH. Make sure the npm global bin directory (usually %APPDATA%\npm, or C:\Program Files\nodejs) is on the system PATH, not just your user PATH. The runner service often runs as a different user, such as NETWORK SERVICE or a dedicated account.
+3. Restart the runner service so it picks up the new PATH. Restarting is required because environment changes aren't seen by a running service.
+Restart-Service "actions.runner.*"
+4. Authenticate once as the same user the runner service runs as. The check at the next step (sf org display) will fail without this.
+sf org login web --alias fsc-qa
+If the login must be done interactively, use runas with the service account, or change the service to run under a user you can log in as. Alternatively, use JWT or sf org login sfdx-url --sfdx-url-file auth.txt --alias fsc-qa with a secret, which works headlessly.
