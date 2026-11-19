@@ -1,0 +1,11 @@
+What you need to do
+
+1. Install the CLI on agent-01-fsc. Run npm i -g @salesforce/cli, and make sure sf is on the PATH of the runner service account.
+2. Check which Windows account runs the runner service. It must be a normal user (not SYSTEM or NETWORK SERVICE) because the CLI stores its login under that user's profile.
+3. Log in once as that user. This needs Okta and MFA and finishing within about 2 minutes, with port 1717 free:
+sf org login web --alias fsc-qa --instance-url https://htsw--qa.sandbox.my.salesforce.com
+sf org list auth
+4. Set the GitHub variables. Set BASE_URL, SF_LOGIN_URL and SF_LOGIN_FORM_URL to the same org as the CLI login. Delete or update RUNNER_LABELS if it's already set, and delete AUTH_MODE if it's set to something else.
+5. Merge the repo-side items. Merge to main so the schedules start. Optionally make the smoke PR check required in branch protection, and confirm Actions policy and PR-comment permissions.
+6. Run gh workflow run scheduled-smoke-regression.yml as a first test.
+7. Redo the CLI login if it expires. Repeat the login if the refresh token is revoked or expires. That depends on your org's session policies, which I haven't checked.
