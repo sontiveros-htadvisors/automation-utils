@@ -1,50 +1,17 @@
-Nothing needs to change in GitHub settings or in the workflow for this error. The fix is on the runner machine:
+Fix, on agent-01-fsc:
 
-1. Log in to the machine hosting the self-hosted GitHub Actions runner.
-
-2. Verify whether Salesforce CLI is installed:
-   sf --version
-
-3. If Salesforce CLI is not installed, install it:
-   npm install -g @salesforce/cli
-
-4. Confirm the sf executable is available in the PATH for the account running the GitHub Actions runner service:
-   - Windows:
-     where sf
-   - Linux:
-     which sf
-
-5. If the Salesforce CLI installation directory is not in PATH, add it to the PATH environment variable for the same user account that runs the runner service.
-
-6. Restart the GitHub Actions runner service so it picks up the updated PATH.
-
-   Windows:
-   a. Open Services (services.msc)
-   b. Locate the GitHub Actions Runner service
-      (typically named something like "actions.runner.<org>-<runnername>")
-   c. Right-click the service and select Restart
-
-   Or from an elevated PowerShell window:
-   Get-Service | Where-Object {$_.Name -like "actions.runner*"}
-   Restart-Service <service-name>
-
-   Linux:
-   sudo systemctl status actions.runner.*
-   sudo systemctl restart actions.runner.*
-
-7. Verify again that the runner account can access Salesforce CLI:
-   sf --version
-
-8. If the workflow later executes:
-   sf org login web
-
-   the login must be performed on the same runner machine and under the same operating-system user account that runs the GitHub Actions runner service, since Salesforce stores authentication credentials in that user's profile.
-
-9. Verify the Salesforce authentication:
-   sf org list
-
-After completing these steps, rerun the workflow and verify that the sf command is recognized and executes successfully.
-
-
+1. Find the service account. In services.msc, open the "GitHub Actions Runner (...)" service and check the Log On tab.
+2. Log in as that user. Open a terminal as that user, either by signing in as them or with runas /user:DOMAIN\svcuser powershell. Run:
 sf org login web --alias fsc-qa --instance-url https://htsw--qa.sandbox.my.salesforce.com
+Finish Okta and MFA within about 2 minutes, and keep port 1717 free. A browser must be available in that session.
+3. Verify, in that same user's terminal:
 sf org list auth
+sf org display --target-org fsc-qa
+fsc-qa should be listed and display should succeed.
+4. Re-run the failed job in the Actions tab.
+
+If it still fails
+
+• The alias is case-sensitive. It must match SF_CLI_ALIAS, which defaults to fsc-qa.
+• If you logged in under your own account but the service runs as another user (for example NETWORK SERVICE), either repeat the login as the service user, or change the service's Log On account to your user and restart it.
+• You can run sf org list auth through the runner by adding a temporary workflow step to see what it sees. Tell me if you want one.
