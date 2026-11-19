@@ -16,4 +16,3 @@ sf org display --target-org fsc-qa --verbose --json | ConvertFrom-Json | % { $_.
 This writes the token into the service user's .sfdx and .sf home directories on each run, so it also survives a runner profile change.
 
 
-force://PlatformCLI::5Aep861yqq1bcVIVrfD9yGZhb2opvOqGh3ZgLB3ceaknobj2ykfOrSEUSDO3w4F4yWeynjiApAWX3sE52emNx1.@htsw--qa.sandbox.my.salesforce.com
